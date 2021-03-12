@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/InputComponent.h"
 #include "PestilenceCharacter.generated.h"
 
 UCLASS()
@@ -22,6 +24,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MyCamera")
 		UCameraComponent* Camera;
 
+	UPROPERTY(EditAnywhere, Category = "Mesh")
+		UStaticMeshComponent* MeshComponent;
+	UPROPERTY(EditAnywhere, Category = "Mesh")
+		UCapsuleComponent* MyCapsuleComponent;
+
+	UPROPERTY(EditAnywhere, Category = "CustomParameter")
+		float MovementDistance;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -32,5 +42,12 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+private:
+
+	void Up();
+	void Down();
+	void Left();
+	void Right();
 
 };
