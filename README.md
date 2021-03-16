@@ -1,10 +1,15 @@
 # Group15
 
-Team members: 
+Team members:
+
 Alvaro Madrid Calvo
+
 Feho Burzic
+
 Niklas Johnsen
+
 Cornelius Grønstad Olsen
+
 Espen Jødal Rønningen
 
 
