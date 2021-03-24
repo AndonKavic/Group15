@@ -8,6 +8,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "EngineUtils.h"
+#include "GridActor.h"
 #include "PestilenceCharacter.generated.h"
 
 UCLASS()
@@ -18,6 +21,13 @@ class GROUP15_API APestilenceCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APestilenceCharacter();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Grid")
+		AGridActor* GridActor;
+	UPROPERTY(EditAnywhere, Category = "Grid")
+		int XGridReference;
+	UPROPERTY(EditAnywhere, Category = "Grid")
+		int YGridReference;
 
 	UPROPERTY(EditAnywhere, Category = "MyCamera")
 		USpringArmComponent* CameraBoom;
@@ -45,9 +55,10 @@ public:
 
 private:
 
+
+
 	void Up();
 	void Down();
 	void Left();
 	void Right();
-
 };
