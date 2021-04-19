@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+
 #include "GridActor.h"
+#include "GenericEnemyCharacter.h"
 #include "Containers/UnrealString.h"
 
 // Sets default values
@@ -19,6 +21,9 @@ AGridActor::AGridActor()
 	HitColor = FLinearColor(255.f, 30.f, 0.f, 0.8f);
 
 	EnableDrawDebug = false;
+	UELogWarnings = false;
+
+	
 }
 
 // Called when the game starts or when spawned
@@ -35,7 +40,8 @@ void AGridActor::BeginPlay()
 	TempArray.Init(0, XSize);
 	IntGridArray.Init(TempArray, YSize);
 
-	EnableDrawDebug = true;
+	BoxTracing();
+	SpawnEnemies();
 }
 
 // Called every frame
@@ -47,7 +53,24 @@ void AGridActor::Tick(float DeltaTime)
 	{
 		AGridActor::BoxTracing();
 	}
+}
 
+void AGridActor::SpawnEnemies()
+{
+	for (int i = 0; i < Data.Num(); i++)
+	{
+		FActorSpawnParameters SpawnInfo;	//  Defining default SpawnParamenters
+		SpawnInfo.Name = Data[i].EnemyName;	// Sets ID Name.
+		if (Data.IsValidIndex(0) && IsValid(GenericEnemy_BP))
+		{
+			GenericEnemy = GetWorld()->SpawnActor<AGenericEnemyCharacter>(GenericEnemy_BP.Get(), Data[i].EnemyLocation, SpawnInfo);	// Spawns the character.
+			GenericEnemy->GridActor = this;	// Gives the character a reference to the grid
+			GenericEnemy->XGridReference = (GenericEnemy->GetActorLocation().X - GetActorLocation().X) / 100;
+			GenericEnemy->YGridReference = (GenericEnemy->GetActorLocation().Y - GetActorLocation().Y) / 100;
+			GenericEnemy->DirFacedOnSpawn = Data[i].FacingDirection;	// Lets the character know which direction it should face.
+			GenericEnemy->IsIdle = true;	// Activates the character.
+		}
+	}
 }
 
 void AGridActor::BoxTracing()
@@ -103,14 +126,25 @@ void AGridActor::BoxTracing()
 int AGridActor::GetGridCell(int x, int y)
 {
 	// Returns the status of the selected cell.
-	return IntGridArray[y][x];
+	if (IntGridArray.IsValidIndex(y) && IntGridArray[y].IsValidIndex(x))
+	{
+		return IntGridArray[y][x];
+	}
+	else
+	{
+		if (UELogWarnings)
+			UE_LOG(LogTemp, Warning, TEXT("Something is trying to path to a cell that doesn't exist!"));
+		return 0;
+	}
+	
 }
 
 void AGridActor::SetGridCell(int x, int y, int Type)
 {
-	// Sets a new status to the selected sell.
+	// Sets a new status to the selected cell.
 	IntGridArray[y][x] = Type;
-	UE_LOG(LogTemp, Warning, TEXT("GridType is %d"), IntGridArray[y][x]);
+	if (UELogWarnings)
+		UE_LOG(LogTemp, Warning, TEXT("GridType is %d"), IntGridArray[y][x]);
 }
 
 

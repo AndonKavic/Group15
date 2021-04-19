@@ -11,13 +11,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 #include "GridActor.h"
+#include "PestilenceOverlapActor.h"
 #include "PestilenceCharacter.generated.h"
 
 UCLASS()
 class GROUP15_API APestilenceCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
+		 
 public:
 	// Sets default values for this character's properties
 	APestilenceCharacter();
@@ -29,18 +30,21 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grid")
 		int YGridReference;
 
+	UPROPERTY(EditAnywhere, Category = "Actions")
+		TSubclassOf<class APestilenceOverlapActor> InfectedTouch_BP;
+
 	UPROPERTY(EditAnywhere, Category = "MyCamera")
 		USpringArmComponent* CameraBoom;
 	UPROPERTY(EditAnywhere, Category = "MyCamera")
 		UCameraComponent* Camera;
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
-		UStaticMeshComponent* MeshComponent;
-	UPROPERTY(EditAnywhere, Category = "Mesh")
-		UCapsuleComponent* MyCapsuleComponent;
-
 	UPROPERTY(EditAnywhere, Category = "CustomParameter")
+		// How far this character moves.
 		float MovementDistance;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DeveloperParameter")
+		// Display UELog Warnings.
+		bool UELogWarnings;
 
 protected:
 	// Called when the game starts or when spawned
@@ -55,10 +59,12 @@ public:
 
 private:
 
-
-
+	void Move(int Direction);
 	void Up();
 	void Down();
 	void Left();
 	void Right();
+	void Esc();
+	// Prints the values of the whole array as a ULog Warning.
+	void PrintArray();
 };
