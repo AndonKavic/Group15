@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/TimelineComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 #include "GridActor.h"
@@ -18,6 +19,8 @@ UCLASS()
 class GROUP15_API APestilenceCharacter : public ACharacter
 {
 	GENERATED_BODY()
+
+		class UTimelineComponent* MyTimeline;
 		 
 public:
 	// Sets default values for this character's properties
@@ -46,6 +49,20 @@ public:
 		// Display UELog Warnings.
 		bool UELogWarnings;
 
+
+	UPROPERTY(EditAnywhere, Category = "Timeline")
+		class UCurveFloat* fcurve;
+
+
+
+	UPROPERTY(EditAnywhere, Category = "Timeline")
+		float ZOffset;
+
+	FOnTimelineFloat InterpFunction{};
+
+
+	FOnTimelineEvent TimelineFinished{};
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -58,6 +75,21 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
+
+
+	UFUNCTION()
+		void TimelineFloatReturn(float value);
+
+	UFUNCTION()
+		void OnTimelineFinished();
+
+	UPROPERTY()
+		FVector StartLocation;
+
+	UPROPERTY()
+		FVector EndLocation;
+
+	bool bIsMoving;
 
 	void Move(int Direction);
 	void Up();

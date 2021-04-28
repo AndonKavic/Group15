@@ -32,7 +32,7 @@ APestilenceCharacter::APestilenceCharacter()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	// How far the character moves per instance of movement.
-	MovementDistance = 4.f;
+	MovementDistance = 100.f;
 
 	// Where this character is located in the Grid.
 	XGridReference = 0;
@@ -40,6 +40,12 @@ APestilenceCharacter::APestilenceCharacter()
 
 	// Developer Parameters.
 	UELogWarnings = true;
+
+	MyTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Timeline"));
+	InterpFunction.BindUFunction(this, FName("TimelineFloatReturn"));
+	TimelineFinished.BindUFunction(this, FName("OnTimelineFinished"));
+
+	bIsMoving = false;
 }
 
 // Called when the game starts or when spawned
@@ -59,7 +65,32 @@ void APestilenceCharacter::BeginPlay()
 	YGridReference = (GetActorLocation().Y - GridActor->GetActorLocation().Y) / 100;
 
 	GridActor->SetGridCell(XGridReference, YGridReference, 3);	// Sets occupation where Pestilence spawned.
-}
+
+
+
+	if (fcurve)
+	{
+		// Add the float curve to the timeline and connect it to the interpfunctions delegate.
+		MyTimeline->AddInterpFloat(fcurve, InterpFunction, FName("Alpha"));
+		// Add our on timeline finished function.
+		MyTimeline->SetTimelineFinishedFunc(TimelineFinished);
+
+		// Set Vectors.
+		
+
+		MyTimeline->SetLooping(false);
+		MyTimeline->SetIgnoreTimeDilation(false);
+	}
+
+
+	
+	
+
+
+
+
+
+}	
 
 // Called every frame
 void APestilenceCharacter::Tick(float DeltaTime)
@@ -78,6 +109,18 @@ void APestilenceCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &APestilenceCharacter::Right);
 	PlayerInputComponent->BindAction("Escape", IE_Pressed, this, &APestilenceCharacter::Esc);
 	PlayerInputComponent->BindAction("P", IE_Pressed, this, &APestilenceCharacter::PrintArray);
+}
+
+void APestilenceCharacter::TimelineFloatReturn(float value)
+{
+	bIsMoving = true;
+	//SetActorLocation(FMath::Lerp(StartLocation, EndLocation, value));
+	AddMovementInput(GetMesh()->GetRightVector(), value);
+}
+
+void APestilenceCharacter::OnTimelineFinished()
+{
+	bIsMoving = false;
 }
 
 
@@ -117,11 +160,13 @@ void APestilenceCharacter::Move(int Direction)
 		break;
 	}
 
+	
 	GetMesh()->SetRelativeRotation(FRotator(0.f, 90.f * (Direction - 2), 0.f), false, false, ETeleportType::None);	// Rotates Pestilence.
 
 	if (IsValid(GridActor))	// Does the GridActor Exist? If not. Uhoh.
 	{
 		GetGridResult = GridActor->GetGridCell(XGridReference + XDirection, YGridReference + YDirection); // Checks what occupies the cell.
+
 
 		switch (GetGridResult)	// Do something with the result.
 		{
@@ -133,12 +178,25 @@ void APestilenceCharacter::Move(int Direction)
 		}
 		case 1:	// Open
 		{
-			// Move the character.
-			SetActorLocation(GetActorLocation() + FVector(25.f * MovementDistance * XDirection, 25.f * MovementDistance * YDirection, 0.f));
 
-			// Change cell types.
-			GridActor->SetGridCell(XGridReference, YGridReference, 1);	// Where Pestilence started.
+			// Block the new cell
+			GridActor->SetGridCell(XGridReference + XDirection, YGridReference + YDirection, 2);	// Where Pestilence moved to.
+
+
+
+
+
+
+			// Move the character.
+			StartLocation = GetActorLocation();
+			EndLocation = StartLocation + FVector(MovementDistance * XDirection, MovementDistance * YDirection, 0.f);
+
+			MyTimeline->PlayFromStart();	
+
+			// Correctly update cell types.
 			GridActor->SetGridCell(XGridReference + XDirection, YGridReference + YDirection, 3);	// Where Pestilence moved to.
+			GridActor->SetGridCell(XGridReference, YGridReference, 1);	// Where Pestilence started.
+
 			// Adjust Pestilences location to match the new one.
 			XGridReference += XDirection;
 			YGridReference += YDirection;
@@ -164,7 +222,7 @@ void APestilenceCharacter::Move(int Direction)
 		case 5:	// GenericEnemy
 		{
 			if (UELogWarnings)
-				UE_LOG(LogTemp, Warning, TEXT("Pestilence is trying to path to a cell that a GenericEnemy is occupying, There shouldn't be any on release!"));
+				UE_LOG(LogTemp, Warning, TEXT("Pestilence is trying to path to a cell that a GenericEnemy is occupying, There shouldn't be any on release btw!"));
 
 			UWorld* World = GetWorld();
 			FActorSpawnParameters SpawnInfo;
@@ -210,21 +268,25 @@ void APestilenceCharacter::Move(int Direction)
 
 void APestilenceCharacter::Up()
 {
+	if(!bIsMoving)
 	Move(1);
 }
 
 void APestilenceCharacter::Right()
 {
+	if (!bIsMoving)
 	Move(2);
 }
 
 void APestilenceCharacter::Down()
 {
+	if (!bIsMoving)
 	Move(3);
 }
 
 void APestilenceCharacter::Left()
 {
+	if (!bIsMoving)
 	Move(4);
 }
 

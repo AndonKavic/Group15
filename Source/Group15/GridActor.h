@@ -25,9 +25,13 @@ public:
 		FName EnemyName;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 		int EnemyType = 5;	
+
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 		// The Direction to face. 1=North, 2=East, 3=South, 4=West.
 		int FacingDirection;
+
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 		// Spawn this Enemy?
 		bool SpawnEnemy;
