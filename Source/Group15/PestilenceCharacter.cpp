@@ -3,7 +3,6 @@
 
 #include "PestilenceCharacter.h"
 
-
 // Sets default values
 APestilenceCharacter::APestilenceCharacter()
 {
@@ -41,6 +40,7 @@ APestilenceCharacter::APestilenceCharacter()
 	// Developer Parameters.
 	UELogWarnings = true;
 
+	// Timeline.
 	MyTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Timeline"));
 	InterpFunction.BindUFunction(this, FName("TimelineFloatReturn"));
 	TimelineFinished.BindUFunction(this, FName("OnTimelineFinished"));
@@ -52,6 +52,7 @@ APestilenceCharacter::APestilenceCharacter()
 void APestilenceCharacter::BeginPlay()
 {
 	Super::BeginPlay();	
+
 
 	// Source: https://answers.unrealengine.com/questions/405325/is-my-use-of-tactoriterator-and-tarray-correct.html
 	// Finds the GridActorBP in the world outliner.
@@ -74,22 +75,11 @@ void APestilenceCharacter::BeginPlay()
 		MyTimeline->AddInterpFloat(fcurve, InterpFunction, FName("Alpha"));
 		// Add our on timeline finished function.
 		MyTimeline->SetTimelineFinishedFunc(TimelineFinished);
-
-		// Set Vectors.
 		
 
 		MyTimeline->SetLooping(false);
 		MyTimeline->SetIgnoreTimeDilation(false);
 	}
-
-
-	
-	
-
-
-
-
-
 }	
 
 // Called every frame
@@ -104,9 +94,13 @@ void APestilenceCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	// Movement Inputs.
 	PlayerInputComponent->BindAction("Up", IE_Pressed, this, &APestilenceCharacter::Up);
+	PlayerInputComponent->BindAction("Up", IE_Repeat, this, &APestilenceCharacter::Up);
 	PlayerInputComponent->BindAction("Down", IE_Pressed, this, &APestilenceCharacter::Down);
+	PlayerInputComponent->BindAction("Down", IE_Repeat, this, &APestilenceCharacter::Down);
 	PlayerInputComponent->BindAction("Left", IE_Pressed, this, &APestilenceCharacter::Left);
+	PlayerInputComponent->BindAction("Left", IE_Repeat, this, &APestilenceCharacter::Left);
 	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &APestilenceCharacter::Right);
+	PlayerInputComponent->BindAction("Right", IE_Repeat, this, &APestilenceCharacter::Right);
 	PlayerInputComponent->BindAction("Escape", IE_Pressed, this, &APestilenceCharacter::Esc);
 	PlayerInputComponent->BindAction("P", IE_Pressed, this, &APestilenceCharacter::PrintArray);
 }
@@ -178,14 +172,8 @@ void APestilenceCharacter::Move(int Direction)
 		}
 		case 1:	// Open
 		{
-
 			// Block the new cell
-			GridActor->SetGridCell(XGridReference + XDirection, YGridReference + YDirection, 2);	// Where Pestilence moved to.
-
-
-
-
-
+			GridActor->SetGridCell(XGridReference + XDirection, YGridReference + YDirection, 3);	// Where Pestilence is going.
 
 			// Move the character.
 			StartLocation = GetActorLocation();
@@ -194,7 +182,6 @@ void APestilenceCharacter::Move(int Direction)
 			MyTimeline->PlayFromStart();	
 
 			// Correctly update cell types.
-			GridActor->SetGridCell(XGridReference + XDirection, YGridReference + YDirection, 3);	// Where Pestilence moved to.
 			GridActor->SetGridCell(XGridReference, YGridReference, 1);	// Where Pestilence started.
 
 			// Adjust Pestilences location to match the new one.
@@ -216,7 +203,7 @@ void APestilenceCharacter::Move(int Direction)
 		case 4:	// Interactive
 		{
 			if (UELogWarnings)
-				UE_LOG(LogTemp, Warning, TEXT("Pestilence is trying to path to a cell that a interactive is occupying."));
+				UE_LOG(LogTemp, Warning, TEXT("Pestilence is trying to path to a cell that an interactive is occupying."));
 			break;
 		}
 		case 5:	// GenericEnemy

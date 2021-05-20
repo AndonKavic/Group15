@@ -45,6 +45,12 @@ public:
 		// How far this character moves.
 		float MovementDistance;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "CustomParameter")
+		bool bIsMoving;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CustomParameter");
+		int Health{ 4 };
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DeveloperParameter")
 		// Display UELog Warnings.
 		bool UELogWarnings;
@@ -52,15 +58,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Timeline")
 		class UCurveFloat* fcurve;
-
-
-
 	UPROPERTY(EditAnywhere, Category = "Timeline")
 		float ZOffset;
 
 	FOnTimelineFloat InterpFunction{};
-
-
 	FOnTimelineEvent TimelineFinished{};
 
 protected:
@@ -89,7 +90,7 @@ private:
 	UPROPERTY()
 		FVector EndLocation;
 
-	bool bIsMoving;
+	
 
 	void Move(int Direction);
 	void Up();

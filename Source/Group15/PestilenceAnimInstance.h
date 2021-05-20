@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "PestilenceCharacter.h"
 #include "PestilenceAnimInstance.generated.h"
 
 /**
@@ -18,6 +19,8 @@ public:
 	virtual void NativeInitializeAnimation() override;
 
 	UFUNCTION(BlueprintCallable, Category = AnimationProperties)
+		void UpdateRunAnimation();
+	UFUNCTION(BlueprintCallable, Category = AnimationProperties)
 		void UpdateAnimationProperties();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
@@ -28,4 +31,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 		bool bIsAimingThrow{ false };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
+		bool bIsMoving{ false };
+
 };

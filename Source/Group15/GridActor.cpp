@@ -13,8 +13,8 @@ AGridActor::AGridActor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Offsets the location of the HitBoxGrid.
-	GridOffsetX = 0.f;
-	GridOffsetY = 0.f;
+	GridOffsetX = 2800;
+	GridOffsetY = -200.f;
 
 	// The colors of the hitboxes when they hit or miss objects.
 	MissColor = FLinearColor(0.f, 255.f, 0.f, 0.f);
@@ -32,7 +32,7 @@ void AGridActor::BeginPlay()
 	Super::BeginPlay();
 
 	// GridSize
-	const int XSize = 49;
+	const int XSize = 99;
 	const int YSize = 49;
 
 	// Setting the size of the grid that holds info on each cell.
@@ -57,18 +57,26 @@ void AGridActor::Tick(float DeltaTime)
 
 void AGridActor::SpawnEnemies()
 {
-	for (int i = 0; i < Data.Num(); i++)
+	if (EnableEnemySpawn)
 	{
-		FActorSpawnParameters SpawnInfo;	//  Defining default SpawnParamenters
-		SpawnInfo.Name = Data[i].EnemyName;	// Sets ID Name.
-		if (Data.IsValidIndex(0) && IsValid(GenericEnemy_BP))
+		for (int i = 0; i < Data.Num(); i++)
 		{
-			GenericEnemy = GetWorld()->SpawnActor<AGenericEnemyCharacter>(GenericEnemy_BP.Get(), Data[i].EnemyLocation, SpawnInfo);	// Spawns the character.
-			GenericEnemy->GridActor = this;	// Gives the character a reference to the grid
-			GenericEnemy->XGridReference = (GenericEnemy->GetActorLocation().X - GetActorLocation().X) / 100;
-			GenericEnemy->YGridReference = (GenericEnemy->GetActorLocation().Y - GetActorLocation().Y) / 100;
-			GenericEnemy->DirFacedOnSpawn = Data[i].FacingDirection;	// Lets the character know which direction it should face.
-			GenericEnemy->IsIdle = true;	// Activates the character.
+			FActorSpawnParameters SpawnInfo;	//  Defining default SpawnParamenters
+			SpawnInfo.Name = Data[i].EnemyName;	// Sets ID Name.
+			if (Data.IsValidIndex(i) && IsValid(GenericEnemy_BP))
+			{
+				if (GetGridCell(
+					(Data[i].EnemyLocation.GetLocation().X - GetActorLocation().X) / 100,
+					(Data[i].EnemyLocation.GetLocation().Y - GetActorLocation().Y) / 100) == 1)
+				{
+					GenericEnemy = GetWorld()->SpawnActor<AGenericEnemyCharacter>(GenericEnemy_BP.Get(), Data[i].EnemyLocation, SpawnInfo);	// Spawns the character.
+					GenericEnemy->GridActor = this;	// Gives the character a reference to the grid
+					GenericEnemy->XGridReference = (GenericEnemy->GetActorLocation().X - GetActorLocation().X) / 100;
+					GenericEnemy->YGridReference = (GenericEnemy->GetActorLocation().Y - GetActorLocation().Y) / 100;
+					GenericEnemy->DirFacedOnSpawn = Data[i].FacingDirection;	// Lets the character know which direction it should face.
+					GenericEnemy->IsIdle = true;	// Activates the character.
+				}
+			}
 		}
 	}
 }
@@ -82,7 +90,7 @@ void AGridActor::BoxTracing()
 	TArray<AActor*> none;
 
 	// Initializing the HitBoxGrid and Size.
-	const int XSize = 49;
+	const int XSize = 99;
 	const int YSize = 49;
 	FVector gridArray[YSize][XSize];
 
